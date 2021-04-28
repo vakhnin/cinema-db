@@ -113,11 +113,30 @@ CREATE TABLE places (
   CONSTRAINT fk__places__countries FOREIGN KEY (country_id) REFERENCES countries(id)
 ) COMMENT = 'Места';
 
-INSERT INTO places (id, country_id, name)
-	VALUES (1, 2, "Бейрут");
+INSERT INTO places (id, country_id, name) VALUES 
+	(1, 2, "Бейрут");
 
 SELECT p.name, c.name FROM places AS p 
 	JOIN countries AS c ON c.id = p.country_id;
+
+
+DROP TABLE IF EXISTS persons_birth_places;
+CREATE TABLE persons_birth_places (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  person_id BIGINT UNSIGNED,
+  place_id BIGINT UNSIGNED,
+  CONSTRAINT fk__persons_birth_places__persons FOREIGN KEY (person_id) REFERENCES persons(id),  
+  CONSTRAINT fk__persons_birth_places__places FOREIGN KEY (place_id) REFERENCES places(id)
+) COMMENT = 'Места рождения персон';
+
+INSERT INTO persons_birth_places (id, person_id, place_id) VALUES 
+	(1, 1, 1);
+
+SELECT pr.name, pr.surname, pl.name AS city, c.name AS country 
+	FROM persons_birth_places AS pbp
+	JOIN persons AS pr ON pr.id = pbp.person_id
+	JOIN places AS pl ON pl.id = pbp.place_id
+	JOIN countries AS c ON c.id = pl.country_id;
 
 
 DROP TABLE IF EXISTS roles;
