@@ -139,18 +139,18 @@ SELECT pr.name, pr.surname, pl.name AS city, c.name AS country
 	JOIN countries AS c ON c.id = pl.country_id;
 
 
-DROP TABLE IF EXISTS roles;
-CREATE TABLE roles (
+DROP TABLE IF EXISTS specializations;
+CREATE TABLE specializations (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL 
 ) COMMENT = 'Специализация в съемочной группе';
 
-INSERT INTO roles (id, name)
+INSERT INTO specializations (id, name)
 	VALUES (1, "Режиссер"),
-		(2, "Сценарий"),
+		(2, "Сценарист"),
 		(3, "Актер");
 	
-SELECT * FROM roles;
+SELECT * FROM specializations;
 
 
 DROP TABLE IF EXISTS films_crew;
@@ -160,7 +160,7 @@ CREATE TABLE films_crew (
   role_id BIGINT UNSIGNED,
   person_id BIGINT UNSIGNED,
   CONSTRAINT fk__films_crew__films FOREIGN KEY (film_id) REFERENCES films(id),  
-  CONSTRAINT fk__films_crew__roles FOREIGN KEY (role_id) REFERENCES roles(id),
+  CONSTRAINT fk__films_crew__specializations FOREIGN KEY (role_id) REFERENCES specializations(id),
   CONSTRAINT fk__films_crew__persons FOREIGN KEY (person_id) REFERENCES persons(id)
 ) COMMENT = 'Состав съемочной группы';
 
@@ -171,10 +171,10 @@ INSERT INTO films_crew (film_id, role_id, person_id)
 		(1, 2, 2),
 		(1, 2, 3);
 
-SELECT f.name_ru, r.name, p.name, p.surname
+SELECT f.name_ru, s.name, p.name, p.surname
 	FROM films_crew AS fc
 	JOIN films AS f ON f.id = fc.film_id
-	JOIN roles AS r ON r.id = fc.role_id
+	JOIN specializations AS s ON s.id = fc.role_id
 	JOIN persons AS p ON p.id = fc.person_id;
 
 
