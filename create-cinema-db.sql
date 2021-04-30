@@ -147,8 +147,7 @@ CREATE TABLE specializations (
 
 INSERT INTO specializations (id, name)
 	VALUES (1, "Режиссер"),
-		(2, "Сценарист"),
-		(3, "Актер");
+		(2, "Сценарист");
 	
 SELECT * FROM specializations;
 
@@ -162,11 +161,10 @@ CREATE TABLE films_crew (
   CONSTRAINT fk__films_crew__films FOREIGN KEY (film_id) REFERENCES films(id),  
   CONSTRAINT fk__films_crew__specializations FOREIGN KEY (role_id) REFERENCES specializations(id),
   CONSTRAINT fk__films_crew__persons FOREIGN KEY (person_id) REFERENCES persons(id)
-) COMMENT = 'Состав съемочной группы';
+) COMMENT = 'Состав съемочной группы (без актеров)';
 
 INSERT INTO films_crew (film_id, role_id, person_id)
-	VALUES (1, 3, 1),
-		(1, 1, 2),
+	VALUES (1, 1, 2),
 		(1, 1, 3),
 		(1, 2, 2),
 		(1, 2, 3);
@@ -178,7 +176,25 @@ SELECT f.name_ru, s.name, p.name, p.surname
 	JOIN persons AS p ON p.id = fc.person_id;
 
 
+DROP TABLE IF EXISTS films_actors;
+CREATE TABLE films_actors (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  film_id BIGINT UNSIGNED,
+  person_id BIGINT UNSIGNED,
+  role_name VARCHAR(255),
+  CONSTRAINT fk__films_actors__films FOREIGN KEY (film_id) REFERENCES films(id),
+  CONSTRAINT fk__films_actors__persons FOREIGN KEY (person_id) REFERENCES persons(id)
+) COMMENT = 'Актерский состав';
 
+INSERT INTO films_actors (film_id, person_id, role_name)
+	VALUES (1, 1, 'Neo');
+
+SELECT f.name_ru, fa.role_name, p.name, p.surname
+	FROM films_actors AS fa
+	JOIN films AS f ON f.id = fa.film_id
+	JOIN persons AS p ON p.id = fa.person_id;
+	
+	
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
