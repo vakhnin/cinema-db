@@ -17,9 +17,13 @@ CREATE TABLE films (
   INDEX(production_year)
 ) COMMENT = 'Данные фильмов';
  
-INSERT INTO  films (id, name_en, name_ru, announcement, production_year, slogan, premiere_date) 
-	VALUES (1, "The Matrix", "Матрица", "Хакер Нео узнает, что его мир – виртуальный. Выдающийся экшен, доказавший, что зрелищное кино может быть умным", 
-			1999, "Добро пожаловать в реальный мир", "1999-03-24");
+INSERT INTO  films (id, name_en, name_ru, announcement, production_year, slogan, premiere_date) VALUES 
+	(1, "The Matrix", "Матрица", "Хакер Нео узнает, что его мир – виртуальный. Выдающийся экшен, доказавший, что зрелищное кино может быть умным", 
+			1999, "Добро пожаловать в реальный мир", "1999-03-24"),
+	(2, "The Matrix Reloaded", "Матрица: Перезагрузка", NULL, 
+			2003, "Одни машины помогают нам жить, другие – пытаются нас убить", "2003-05-07"),
+	(3, "Henry's Crime", "Криминальная фишка от Генри", "Киану Ривз играет в театре и грабит банки", 
+			2011, "Ну как не совершить преступление, за которое уже отсидел?", "2011-04-07");
 
 SELECT * FROM films;
 
@@ -32,13 +36,18 @@ CREATE TABLE persons (
   name_en VARCHAR(255) NOT NULL,
   surname_en VARCHAR(255),
   height DECIMAL(3,2),
-  birthday DATE
+  birthday DATE,
+  photo VARCHAR(255) DEFAULT NULL
 ) COMMENT = 'Данные персон';
 
-INSERT INTO persons (id, name, surname, name_en, surname_en, height, birthday)
-	VALUES (1, "Киану", "Ривз", "Keanu", "Reeves", 1.86, "1964-09-02"),
-		(2, "Лана", "Вачовски", "Lana", "Wachowski", 1.79, "1965-06-21"),
-		(3, "Лилли", "Вачовски", "Lilly", "Wachowski", 1.89, "1967-12-29");
+INSERT INTO persons (id, name, surname, name_en, surname_en, height, birthday) VALUES 
+	(1, "Киану", "Ривз", "Keanu", "Reeves", 1.86, "1964-09-02"),
+	(2, "Лана", "Вачовски", "Lana", "Wachowski", 1.79, "1965-06-21"),
+	(3, "Лилли", "Вачовски", "Lilly", "Wachowski", 1.89, "1967-12-29"),
+	(4, "Хьюго", "Уивинг", "Hugo", "Weaving", 1.88, "1960-04-04"),
+	(5, "Глория", "Фостер", "Gloria", "Foster", NULL, "1933-11-15"),
+	(6, "Малькольм", "Венвилль", "Malcolm", "Venville", 1.88, "1962-11-05"),
+	(7, "Джеймс", "Каан", "James", "Caan", 1.78, "1940-03-26");
 
 SELECT * FROM persons;
 
@@ -49,9 +58,12 @@ CREATE TABLE movie_genres (
   name VARCHAR(255) NOT NULL
 ) COMMENT = 'Жанры фильмов';
 
-INSERT INTO movie_genres (id, name)
-	VALUES (1, "боевик"),
-		(2, "фантастика");
+INSERT INTO movie_genres (id, name) VALUES 
+	(1, "боевик"),
+	(2, "фантастика"),
+	(3, "мелодрама"),
+	(4, "комедия"),
+	(5, "криминал");
 	
 SELECT * FROM movie_genres;
 
@@ -65,9 +77,14 @@ CREATE TABLE films_movie_genres (
   CONSTRAINT fk__films_movie_genres_movie__genres FOREIGN KEY (movie_genre_id) REFERENCES movie_genres(id)
 ) COMMENT = 'Жанры фильмов';
 
-INSERT INTO films_movie_genres (film_id, movie_genre_id)
-	VALUES (1, 1),
-		(1, 2);
+INSERT INTO films_movie_genres (film_id, movie_genre_id) VALUES 
+	(1, 1),
+	(1, 2),
+	(2, 1),
+	(2, 2),
+	(3, 3),
+	(3, 4),
+	(3, 5);
 	
 SELECT * FROM films_movie_genres;
 SELECT f.name_ru, mg.name 
@@ -84,7 +101,9 @@ CREATE TABLE countries (
 
 INSERT INTO countries (id, name)
 	VALUES (1, "США"),
-		(2, "Ливан");
+		(2, "Ливан"),
+		(3, "Нигерия"),
+		(4, "Англия");
 
 DROP TABLE IF EXISTS films_countries;
 CREATE TABLE films_countries (
@@ -95,8 +114,10 @@ CREATE TABLE films_countries (
   CONSTRAINT fk__films_countries__genres FOREIGN KEY (country_id) REFERENCES countries(id)
 ) COMMENT = 'Жанры фильмов';
 
-INSERT INTO films_countries (film_id, country_id)
-	VALUES (1, 1);
+INSERT INTO films_countries (film_id, country_id) VALUES 
+	(1, 1), 
+	(2, 1),
+	(3, 1);
 	
 SELECT * FROM films_countries;
 SELECT f.name_ru, c.name 
@@ -114,7 +135,11 @@ CREATE TABLE places (
 ) COMMENT = 'Места';
 
 INSERT INTO places (id, country_id, name) VALUES 
-	(1, 2, "Бейрут");
+	(1, 2, "Бейрут"),
+	(2, 1, "Чикаго"),
+	(3, 3, "Ибадан"),
+	(4, 4, "Бирмингем"),
+	(5, 1, "Бронкс");
 
 SELECT p.name, c.name FROM places AS p 
 	JOIN countries AS c ON c.id = p.country_id;
@@ -129,8 +154,14 @@ CREATE TABLE persons_birth_places (
   CONSTRAINT fk__persons_birth_places__places FOREIGN KEY (place_id) REFERENCES places(id)
 ) COMMENT = 'Места рождения персон';
 
-INSERT INTO persons_birth_places (id, person_id, place_id) VALUES 
-	(1, 1, 1);
+INSERT INTO persons_birth_places (person_id, place_id) VALUES 
+	(1, 1),
+	(2, 2),
+	(3, 2),
+	(4, 3),
+	(5, 2),
+	(6, 4),
+	(7, 5);
 
 SELECT pr.name, pr.surname, pl.name AS city, c.name AS country 
 	FROM persons_birth_places AS pbp
@@ -163,11 +194,16 @@ CREATE TABLE films_crew (
   CONSTRAINT fk__films_crew__persons FOREIGN KEY (person_id) REFERENCES persons(id)
 ) COMMENT = 'Состав съемочной группы (без актеров)';
 
-INSERT INTO films_crew (film_id, role_id, person_id)
-	VALUES (1, 1, 2),
-		(1, 1, 3),
-		(1, 2, 2),
-		(1, 2, 3);
+INSERT INTO films_crew (film_id, role_id, person_id) VALUES 
+	(1, 1, 2),
+	(1, 1, 3),
+	(1, 2, 2),
+	(1, 2, 3),
+	(2, 1, 2),
+	(2, 1, 3),
+	(2, 2, 2),
+	(2, 2, 3),
+	(3, 1, 6);
 
 SELECT f.name_ru, s.name, p.name, p.surname
 	FROM films_crew AS fc
@@ -186,8 +222,15 @@ CREATE TABLE films_actors (
   CONSTRAINT fk__films_actors__persons FOREIGN KEY (person_id) REFERENCES persons(id)
 ) COMMENT = 'Актерский состав';
 
-INSERT INTO films_actors (film_id, person_id, role_name)
-	VALUES (1, 1, 'Neo');
+INSERT INTO films_actors (film_id, person_id, role_name) VALUES 
+	(1, 1, 'Neo'),
+	(1, 4, 'Agent Smith'),
+	(1, 5, 'Oracle'),
+	(2, 1, 'Neo'),
+	(2, 4, 'Agent Smith'),
+	(2, 5, 'The Oracle'),
+	(3, 1, 'Henry Torne'),
+	(3, 7, 'Max Saltzman');
 
 SELECT f.name_ru, fa.role_name, p.name, p.surname
 	FROM films_actors AS fa
@@ -231,7 +274,13 @@ INSERT INTO films_votes (film_id, user_id, vote) VALUES
 	(1, 2, 8),
 	(1, 3, 8),
 	(1, 4, 9),
-	(1, 5, 9);
+	(1, 5, 9),
+	(2, 1, 8),
+	(2, 2, 8),
+	(2, 3, 7),
+	(3, 1, 7),
+	(3, 2, 6),
+	(3, 3, 6);
 
 SELECT round(AVG(vote), 1) FROM films_votes
 GROUP BY film_id;
