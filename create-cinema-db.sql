@@ -316,6 +316,32 @@ CREATE TABLE users (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) COMMENT = 'Пользователи';
 
+DROP TRIGGER IF EXISTS check_birthday_before_insert;
+DROP TRIGGER IF EXISTS check_birthday_before_update;
+
+DELIMITER //
+CREATE TRIGGER check_birthday_before_insert BEFORE INSERT ON users
+FOR EACH ROW
+BEGIN
+    IF NEW.birthday_at >= CURRENT_DATE() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Insert Canceled. Birthday must be in the past!';
+    END IF;
+END//
+
+CREATE TRIGGER check_birthday_before_update BEFORE UPDATE ON users
+FOR EACH ROW
+BEGIN
+    IF NEW.birthday_at >= CURRENT_DATE() THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Update Canceled. Birthday must be in the past!';
+    END IF;
+END//
+DELIMITER ;
+
+/* Проверяем триггер check_birthday_before_update
+INSERT INTO users (name, birthday_at) VALUES
+  ('Геннадий', '2222-01-01'); -- Отклоняется, так как дата в будущем
+ */
+
 INSERT INTO users (id, name, birthday_at) VALUES
   (1, 'Геннадий', '1990-10-05'),
   (2, 'Наталья', '1984-11-12'),
@@ -327,6 +353,10 @@ INSERT INTO users (id, name, birthday_at) VALUES
 /* Проверка списка пользователей
 SELECT * FROM users;
 */
+ 
+ /* Проверяем триггер check_birthday_before_insert
+ UPDATE users SET birthday_at = '2222-01-01' WHERE id = 1; -- Отклоняется, так как дата в будущем
+ */
 
 DROP TABLE IF EXISTS films_votes;
 CREATE TABLE films_votes (
@@ -368,4 +398,47 @@ INSERT INTO films_votes (film_id, user_id, vote) VALUES
 SELECT f.name_ru, round(AVG(vote), 1) FROM films_votes AS fv
 	JOIN films AS f ON f.id = fv.film_id
 GROUP BY fv.film_id;
+*/
+
+CREATE OR REPLACE VIEW view_extended_info_films
+AS 
+	SELECT f.*, YEAR(f.premiere_date) AS production_year, 
+	round(AVG(fv.vote), 1) AS rating
+		FROM films AS f
+		JOIN films_votes AS fv ON f.id = fv.film_id
+	GROUP BY fv.film_id;
+
+/* Проверяем представление
+SELECT * FROM view_extended_info_films;
+*/
+
+CREATE OR REPLACE VIEW top_5_films
+AS
+	SELECT * FROM view_extended_info_films AS veif
+	ORDER BY veif.rating DESC
+	LIMIT 5;
+
+/* Проверяем представление
+SELECT * FROM top_5_films;
+*/
+
+DROP PROCEDURE IF EXISTS search_film_by_part_of_name;
+DELIMITER //
+CREATE PROCEDURE search_film_by_part_of_name
+	(IN part_of_name TEXT, OUT film_id BIGINT UNSIGNED)
+BEGIN
+	SELECT id INTO film_id
+	FROM view_extended_info_films AS f
+	WHERE (f.name_ru LIKE concat("%", part_of_name, "%"))
+		OR (f.name_en LIKE concat("%", part_of_name, "%"))
+	ORDER BY f.rating DESC
+	LIMIT 1;
+END//
+DELIMITER ;
+
+/* Проверяем процедуру
+CALL search_film_by_part_of_name("Матрица", @film_id);
+SELECT @film_id;
+CALL search_film_by_part_of_name("Matrix", @film_id);
+SELECT @film_id;
 */
