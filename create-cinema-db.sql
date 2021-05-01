@@ -158,7 +158,7 @@ INSERT INTO films_countries (film_id, country_id) VALUES
 	(5, 1),
 	(5, 7);
 	
-/* Проверка стран участвовавщих в создании фильмов
+/* Проверка стран участвовавших в создании фильмов
 SELECT f.name_ru, c.name 
 	FROM films AS f
 	JOIN films_countries AS fc ON f.id = fc.film_id
@@ -244,18 +244,18 @@ DROP TABLE IF EXISTS films_crew;
 CREATE TABLE films_crew (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   film_id BIGINT UNSIGNED,
-  role_id BIGINT UNSIGNED,
+  specializations_id BIGINT UNSIGNED,
   person_id BIGINT UNSIGNED,
   INDEX(film_id),
-  INDEX(role_id),
+  INDEX(specializations_id),
   INDEX(person_id),
-  UNIQUE(film_id, role_id, person_id),
+  UNIQUE(film_id, specializations_id, person_id),
   CONSTRAINT fk__films_crew__films FOREIGN KEY (film_id) REFERENCES films(id),  
-  CONSTRAINT fk__films_crew__specializations FOREIGN KEY (role_id) REFERENCES specializations(id),
+  CONSTRAINT fk__films_crew__specializations FOREIGN KEY (specializations_id) REFERENCES specializations(id),
   CONSTRAINT fk__films_crew__persons FOREIGN KEY (person_id) REFERENCES persons(id)
 ) COMMENT = 'Состав съемочной группы (без актеров)';
 
-INSERT INTO films_crew (film_id, role_id, person_id) VALUES 
+INSERT INTO films_crew (film_id, specializations_id, person_id) VALUES 
 	(1, 1, 2),
 	(1, 1, 3),
 	(1, 2, 2),
@@ -272,7 +272,7 @@ INSERT INTO films_crew (film_id, role_id, person_id) VALUES
 SELECT f.name_ru, s.name, p.name, p.surname
 	FROM films_crew AS fc
 	JOIN films AS f ON f.id = fc.film_id
-	JOIN specializations AS s ON s.id = fc.role_id
+	JOIN specializations AS s ON s.id = fc.specializations_id
 	JOIN persons AS p ON p.id = fc.person_id;
 */
 
