@@ -1,3 +1,5 @@
+/* Создание структуры БД, напонение данными 
+*/
 DROP DATABASE IF EXISTS cinema;
 CREATE DATABASE cinema;
 USE cinema;
