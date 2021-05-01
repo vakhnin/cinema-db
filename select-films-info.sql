@@ -11,7 +11,7 @@ SELECT * FROM view_extended_info_films
 LIMIT 5 offset 0;
 
 -- Выдаем топ-5 фильмов отсортированных по рейтингу 
-SELECT * FROM top_5_films;
+SELECT * FROM view_top_5_films;
 
 /* Получаем данные фильма "Матрица"
  */

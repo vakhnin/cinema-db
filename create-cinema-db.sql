@@ -414,14 +414,14 @@ AS
 SELECT * FROM view_extended_info_films;
 */
 
-CREATE OR REPLACE VIEW top_5_films
+CREATE OR REPLACE VIEW view_top_5_films
 AS
 	SELECT * FROM view_extended_info_films AS veif
 	ORDER BY veif.rating DESC
 	LIMIT 5;
 
 /* Проверяем представление
-SELECT * FROM top_5_films;
+SELECT * FROM view_top_5_films;
 */
 
 DROP PROCEDURE IF EXISTS search_film_by_part_of_name;
