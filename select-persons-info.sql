@@ -13,12 +13,13 @@ LIMIT 5 offset 0;
 /* Получаем данные по Киану Ривзу
  */
 -- Получаем id Киану
+SET @part_of_name = "Киану";
 SELECT id INTO @person_id
 	FROM persons AS p
-	WHERE (p.name LIKE "%Киану%")
-		OR (p.name_en LIKE "%Киану%")
-		OR (p.surname LIKE "%Киану%")
-		OR (p.surname_en LIKE "%Киану%")
+	WHERE (p.name LIKE concat("%", @part_of_name, "%"))
+		OR (p.name_en LIKE concat("%", @part_of_name, "%"))
+		OR (p.surname LIKE concat("%", @part_of_name, "%"))
+		OR (p.surname_en LIKE concat("%", @part_of_name, "%"))
 	LIMIT 1;
 
 -- Общие данные
