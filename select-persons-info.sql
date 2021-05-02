@@ -12,7 +12,14 @@ LIMIT 5 offset 0;
 
 /* Получаем данные по Киану Ривзу
  */
-SET @person_id = 1;
+-- Получаем id Киану
+SELECT id INTO @person_id
+	FROM persons AS p
+	WHERE (p.name LIKE "%Киану%")
+		OR (p.name_en LIKE "%Киану%")
+		OR (p.surname LIKE "%Киану%")
+		OR (p.surname_en LIKE "%Киану%")
+	LIMIT 1;
 
 -- Общие данные
 SELECT * FROM persons
