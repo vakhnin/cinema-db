@@ -33,6 +33,49 @@ INSERT INTO  films (id, name_en, name_ru, announcement,  slogan, premiere_date) 
 SELECT * FROM films;
 */
 
+DROP TABLE IF EXISTS countries;
+CREATE TABLE countries (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL UNIQUE
+) COMMENT = 'Страны';
+
+INSERT INTO countries (id, name) VALUES 
+	(1, "США"),
+	(2, "Ливан"),
+	(3, "Нигерия"),
+	(4, "Англия"),
+	(5, "Китай"),
+	(6, "Гонконг"),
+	(7, "Канада");
+
+/* Проверка каталога стран
+SELECT * FROM countries;
+ */
+
+DROP TABLE IF EXISTS places;
+CREATE TABLE places (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  country_id BIGINT UNSIGNED,
+  name VARCHAR(255) NOT NULL,
+  UNIQUE(country_id, name),
+  CONSTRAINT fk__places__countries FOREIGN KEY (country_id) REFERENCES countries(id)
+) COMMENT = 'Места';
+
+INSERT INTO places (id, country_id, name) VALUES 
+	(1, 2, "Бейрут"),
+	(2, 1, "Чикаго"),
+	(3, 3, "Ибадан"),
+	(4, 4, "Бирмингем"),
+	(5, 1, "Бронкс"),
+	(6, 5, "Чэнду"),
+	(7, 1, "Бруклин"),
+	(8, 1, "Куинс");
+
+/* Проверка каталога мест
+SELECT p.name, c.name FROM places AS p 
+	JOIN countries AS c ON c.id = p.country_id;
+*/
+
 DROP TABLE IF EXISTS persons;
 CREATE TABLE persons (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -42,27 +85,32 @@ CREATE TABLE persons (
   surname_en VARCHAR(255),
   height DECIMAL(3,2),
   birthday DATE,
+  birth_place_id BIGINT UNSIGNED,
   photo VARCHAR(255) DEFAULT NULL,
   INDEX(name),
   INDEX(surname),
   INDEX(name_en),
-  INDEX(surname_en)
+  INDEX(surname_en),  
+  CONSTRAINT fk__persons__places FOREIGN KEY (birth_place_id) REFERENCES places(id)
 ) COMMENT = 'Данные персон';
 
-INSERT INTO persons (id, name, surname, name_en, surname_en, height, birthday) VALUES 
-	(1, "Киану", "Ривз", "Keanu", "Reeves", 1.86, "1964-09-02"),
-	(2, "Лана", "Вачовски", "Lana", "Wachowski", 1.79, "1965-06-21"),
-	(3, "Лилли", "Вачовски", "Lilly", "Wachowski", 1.89, "1967-12-29"),
-	(4, "Хьюго", "Уивинг", "Hugo", "Weaving", 1.88, "1960-04-04"),
-	(5, "Глория", "Фостер", "Gloria", "Foster", NULL, "1933-11-15"),
-	(6, "Малькольм", "Венвилль", "Malcolm", "Venville", 1.88, "1962-11-05"),
-	(7, "Джеймс", "Каан", "James", "Caan", 1.78, "1940-03-26"),
-	(8, "Тайгер", "Чэнь", "Tiger", "Chen", NULL, "1975-03-03"),
-	(9, "Роберт", "Лонго", "Robert", "Longo", NULL, "1953-01-07"),
-	(10, "Дина", "Мейер", "Dina", "Meyer", 1.7, "1968-12-22");
+INSERT INTO persons (id, name, surname, name_en, surname_en, height, birthday, birth_place_id) VALUES 
+	(1, "Киану", "Ривз", "Keanu", "Reeves", 1.86, "1964-09-02", 1),
+	(2, "Лана", "Вачовски", "Lana", "Wachowski", 1.79, "1965-06-21", 2),
+	(3, "Лилли", "Вачовски", "Lilly", "Wachowski", 1.89, "1967-12-29", 2),
+	(4, "Хьюго", "Уивинг", "Hugo", "Weaving", 1.88, "1960-04-04", 3),
+	(5, "Глория", "Фостер", "Gloria", "Foster", NULL, "1933-11-15", 2),
+	(6, "Малькольм", "Венвилль", "Malcolm", "Venville", 1.88, "1962-11-05", 4),
+	(7, "Джеймс", "Каан", "James", "Caan", 1.78, "1940-03-26", 5),
+	(8, "Тайгер", "Чэнь", "Tiger", "Chen", NULL, "1975-03-03", 6),
+	(9, "Роберт", "Лонго", "Robert", "Longo", NULL, "1953-01-07", 7),
+	(10, "Дина", "Мейер", "Dina", "Meyer", 1.7, "1968-12-22", 8);
 
 /* Проверка данных персон
-SELECT * FROM persons;
+SELECT pr.*, pl.name AS city, c.name AS country 
+	FROM persons AS pr
+	JOIN places AS pl ON pl.id = pr.birth_place_id
+	JOIN countries AS c ON c.id = pl.country_id;
 */
 
 DROP TABLE IF EXISTS movie_genres;
@@ -116,25 +164,6 @@ SELECT f.name_ru, mg.name
 	JOIN movie_genres AS mg ON mg.id = fmg.movie_genre_id;
 */
 
-DROP TABLE IF EXISTS countries;
-CREATE TABLE countries (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL
-) COMMENT = 'Страны';
-
-INSERT INTO countries (id, name) VALUES 
-	(1, "США"),
-	(2, "Ливан"),
-	(3, "Нигерия"),
-	(4, "Англия"),
-	(5, "Китай"),
-	(6, "Гонконг"),
-	(7, "Канада");
-
-/* Проверка каталога стран
-SELECT * FROM countries;
- */
-
 DROP TABLE IF EXISTS films_countries;
 CREATE TABLE films_countries (
   film_id BIGINT UNSIGNED,
@@ -161,62 +190,6 @@ SELECT f.name_ru, c.name
 	FROM films AS f
 	JOIN films_countries AS fc ON f.id = fc.film_id
 	JOIN countries AS c ON c.id = fc.country_id;
-*/
-
-DROP TABLE IF EXISTS places;
-CREATE TABLE places (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  country_id BIGINT UNSIGNED,
-  name VARCHAR(255) NOT NULL,
-  UNIQUE(country_id, name),
-  CONSTRAINT fk__places__countries FOREIGN KEY (country_id) REFERENCES countries(id)
-) COMMENT = 'Места';
-
-INSERT INTO places (id, country_id, name) VALUES 
-	(1, 2, "Бейрут"),
-	(2, 1, "Чикаго"),
-	(3, 3, "Ибадан"),
-	(4, 4, "Бирмингем"),
-	(5, 1, "Бронкс"),
-	(6, 5, "Чэнду"),
-	(7, 1, "Бруклин"),
-	(8, 1, "Куинс");
-
-/* Проверка каталога мест
-SELECT p.name, c.name FROM places AS p 
-	JOIN countries AS c ON c.id = p.country_id;
-*/
-
-DROP TABLE IF EXISTS persons_birth_places;
-CREATE TABLE persons_birth_places (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  person_id BIGINT UNSIGNED,
-  place_id BIGINT UNSIGNED,
-  INDEX(person_id),
-  INDEX(place_id),
-  UNIQUE(person_id, place_id),
-  CONSTRAINT fk__persons_birth_places__persons FOREIGN KEY (person_id) REFERENCES persons(id),  
-  CONSTRAINT fk__persons_birth_places__places FOREIGN KEY (place_id) REFERENCES places(id)
-) COMMENT = 'Места рождения персон';
-
-INSERT INTO persons_birth_places (person_id, place_id) VALUES 
-	(1, 1),
-	(2, 2),
-	(3, 2),
-	(4, 3),
-	(5, 2),
-	(6, 4),
-	(7, 5),
-	(8, 6),
-	(9, 7),
-	(10, 8);
-
-/* Проверка мест рождения персон
-SELECT pr.name, pr.surname, pl.name AS city, c.name AS country 
-	FROM persons_birth_places AS pbp
-	JOIN persons AS pr ON pr.id = pbp.person_id
-	JOIN places AS pl ON pl.id = pbp.place_id
-	JOIN countries AS c ON c.id = pl.country_id;
 */
 
 DROP TABLE IF EXISTS specializations;

@@ -7,7 +7,10 @@ USE cinema;
  * LIMIT (размер страницы)
  * OFFSET (((номер страницы)-1)*(размер страницы))
  */
-SELECT * FROM persons
+SELECT pr.*, pl.name AS city, c.name AS country 
+	FROM persons AS pr
+	JOIN places AS pl ON pl.id = pr.birth_place_id
+	JOIN countries AS c ON c.id = pl.country_id
 LIMIT 5 offset 0;
 
 /* Получаем данные по Киану Ривзу
@@ -23,14 +26,9 @@ SELECT id INTO @person_id
 	LIMIT 1;
 
 -- Общие данные
-SELECT * FROM persons
-WHERE id = @person_id;
-
--- Место рождения
-SELECT pr.name, pr.surname, pl.name AS city, c.name AS country 
-	FROM persons_birth_places AS pbp
-	JOIN persons AS pr ON pr.id = pbp.person_id
-	JOIN places AS pl ON pl.id = pbp.place_id
+SELECT pr.*, pl.name AS city, c.name AS country 
+	FROM persons AS pr
+	JOIN places AS pl ON pl.id = pr.birth_place_id
 	JOIN countries AS c ON c.id = pl.country_id
 	WHERE pr.id = @person_id;
 
