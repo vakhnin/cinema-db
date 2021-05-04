@@ -68,7 +68,7 @@ SELECT * FROM persons;
 DROP TABLE IF EXISTS movie_genres;
 CREATE TABLE movie_genres (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL
+  name VARCHAR(255) NOT NULL UNIQUE
 ) COMMENT = 'Жанры фильмов';
 
 INSERT INTO movie_genres (id, name) VALUES 
@@ -86,12 +86,11 @@ SELECT * FROM movie_genres;
 
 DROP TABLE IF EXISTS films_movie_genres;
 CREATE TABLE films_movie_genres (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   film_id BIGINT UNSIGNED,
   movie_genre_id BIGINT UNSIGNED,
   INDEX(film_id),
   INDEX(movie_genre_id),
-  UNIQUE(film_id, movie_genre_id),
+  PRIMARY KEY(film_id, movie_genre_id),
   CONSTRAINT fk__films_movie_genres__films FOREIGN KEY (film_id) REFERENCES films(id),
   CONSTRAINT fk__films_movie_genres_movie__genres FOREIGN KEY (movie_genre_id) REFERENCES movie_genres(id)
 ) COMMENT = 'Жанры фильмов';
@@ -138,12 +137,11 @@ SELECT * FROM countries;
 
 DROP TABLE IF EXISTS films_countries;
 CREATE TABLE films_countries (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   film_id BIGINT UNSIGNED,
   country_id BIGINT UNSIGNED,
   INDEX(film_id),
   INDEX(country_id),
-  UNIQUE(film_id, country_id),
+  PRIMARY KEY(film_id, country_id),
   CONSTRAINT fk__films_countries__films FOREIGN KEY (film_id) REFERENCES films(id),
   CONSTRAINT fk__films_countries__genres FOREIGN KEY (country_id) REFERENCES countries(id)
 ) COMMENT = 'Жанры фильмов';
@@ -224,7 +222,7 @@ SELECT pr.name, pr.surname, pl.name AS city, c.name AS country
 DROP TABLE IF EXISTS specializations;
 CREATE TABLE specializations (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL 
+  name VARCHAR(255) NOT NULL UNIQUE
 ) COMMENT = 'Специализация в съемочной группе';
 
 INSERT INTO specializations (id, name)	VALUES 
@@ -362,13 +360,12 @@ SELECT * FROM users;
 
 DROP TABLE IF EXISTS films_votes;
 CREATE TABLE films_votes (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   film_id BIGINT UNSIGNED,
   user_id BIGINT UNSIGNED,
   vote DECIMAL(1, 0) UNSIGNED,
   INDEX(film_id),
   INDEX(user_id),
-  UNIQUE (film_id, user_id),
+  PRIMARY KEY (film_id, user_id),
   CONSTRAINT fk__films_votes__films FOREIGN KEY (film_id) REFERENCES films(id),  
   CONSTRAINT fk__films_votes__user FOREIGN KEY (user_id) REFERENCES users(id)
 ) COMMENT = 'Голосование по рейтингу фильма';
